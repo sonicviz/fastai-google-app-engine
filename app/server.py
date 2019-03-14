@@ -28,6 +28,7 @@ async def download_file(url, dest):
 async def setup_learner():
     await download_file(model_file_url, path/'models'/f'{model_file_name}.pth')
     data_bunch = ImageDataBunch.single_from_classes(path, classes,
+        #tfms=get_transforms(), size=224).normalize(imagenet_stats)
         ds_tfms=get_transforms(), size=224).normalize(imagenet_stats)
     learn = cnn_learner(data_bunch, models.resnet34, pretrained=False)
     learn.load(model_file_name)
@@ -49,7 +50,7 @@ async def analyze(request):
     img_bytes = await (data['file'].read())
     img = open_image(BytesIO(img_bytes))
     #return JSONResponse({'result': learn.predict(img)[0]})
-    JSONResponse({'result':str(learn.predict(img)[0])}
+    return JSONResponse({'result':str(learn.predict(img)[0])})
 
 if __name__ == '__main__':
     if 'serve' in sys.argv: uvicorn.run(app, host='0.0.0.0', port=8080)
